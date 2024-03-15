@@ -1,0 +1,23 @@
+SELECT ?wd ?dbp 
+WHERE 
+{
+  ?wd wdt:P1709 ?dbp.
+  FILTER(strstarts(STR(?dbp),"http://dbpedia.org/ontology/")) . 
+}
+
+
+--- EventKG: Most linked events
+
+ SELECT (STR(?label) AS ?eventLabel) ?wikidataId WHERE {
+ ?event rdf:type sem:Event .
+ ?event skos:prefLabel ?label .
+  GRAPH	<https://eventkg.l3s.uni-hannover.de/graph/wikidata> { ?event owl:sameAs ?wikidataId } .
+ ?relation rdf:type eventkg-s:LinkRelation .
+ ?relation rdf:object ?event .
+ GRAPH eventkg-g:wikipedia_ru {
+  ?relation eventkg-s:links ?link_count .
+ } .
+   FILTER(STRLEN(?label) >= 10 ) .
+} GROUP BY ?label ?wikidataId
+ORDER BY DESC(SUM(?link_count))
+LIMIT 10000
